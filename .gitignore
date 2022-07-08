@@ -1,0 +1,10 @@
+# Created by .ignore
+.idea
+.gradle
+build
+ctpjava
+logs
+target
+*.iml
+.svn
+.DS_Store

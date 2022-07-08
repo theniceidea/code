@@ -1,0 +1,54 @@
+{
+  "projects": [
+    {
+      "name": "bizdemo",
+      "comp": "testcomp",
+      "idTag": "A0",
+      "baseDir": "D:\\src\\java\\framework\\test\\src",
+      "dbs": {
+        "summer_dev": {
+          "targetName": "summer_dev",
+          "url": "jdbc:mysql://127.0.0.1:3306/summer_dev?autoReconnect=true&characterEncoding=UTF-8",
+          "user": "root",
+          "pwd": "",
+          "driver": "com.mysql.jdbc.Driver"
+        },
+        "summer_dev2": {
+          "targetName": "summer_dev2",
+          "url": "jdbc:mysql://127.0.0.1:3306/summer_dev2?autoReconnect=true&characterEncoding=UTF-8",
+          "user": "root",
+          "pwd": "",
+          "driver": "com.mysql.jdbc.Driver"
+        }
+      },
+      "tables": [
+        {"name": "demotable", "prefix": "", "idTag": "A0A0", "targetName": "summer_dev"},
+        {"name": "demotable2", "prefix": "", "idTag": "A0A1", "targetName": "summer_dev"},
+        {"name": "f_demotable3", "prefix": "f_", "idTag": "A0A2", "targetName": "summer_dev"},
+        {"name": "ds2demotable", "prefix": "", "idTag": "A1A3", "targetName": "summer_dev2"}
+      ]
+    },
+    {
+      "name": "project",
+      "comp": "comp",
+      "idTag": "00",
+      "baseDir": "D:\\src\\java\\framework\\test\\src",
+      "dbs": {
+        "project_db": {
+          "targetName": "project_db",
+          "url": "jdbc:mysql://127.0.0.1:3306/project_db?autoReconnect=true&characterEncoding=UTF-8",
+          "user": "root",
+          "pwd": "",
+          "driver": "com.mysql.jdbc.Driver"
+        }
+      },
+      "tables": [
+        {"name": "project", "prefix": "", "idTag": "00A0", "targetName": "project_db"},
+        {"name": "project_db", "prefix": "", "idTag": "00A1", "targetName": "project_db"},
+        {"name": "project_model", "prefix": "", "idTag": "00A2", "targetName": "project_db"},
+        {"name": "project_model_field", "prefix": "", "idTag": "00A3", "targetName": "project_db"},
+        {"name": "project_model_field_anno", "prefix": "", "idTag": "00A4", "targetName": "project_db"}
+      ]
+    }
+  ]
+}

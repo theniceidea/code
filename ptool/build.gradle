@@ -1,0 +1,18 @@
+dependencies {
+    implementation project (':common')
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'mysql:mysql-connector-java:5.1.19'
+    implementation 'com.alibaba:druid:1.1.12'
+}
+build{
+    doLast {
+        copy {
+            from("./src/main/resources/application.json")
+            into "./build/classes"
+        }
+        copy {
+            from("./src/main/resources/db.setting")
+            into "./build/classes"
+        }
+    }
+}

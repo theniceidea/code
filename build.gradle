@@ -1,0 +1,59 @@
+allprojects{
+    apply plugin: 'java'
+    apply plugin: 'kotlin'
+    apply plugin: 'kotlin-spring'
+    apply plugin: 'io.spring.dependency-management'
+//    group = 'com.stockall'
+//    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = 1.8
+    jar{
+        enabled = true
+    }
+//    processResources {
+//        from 'src/main/resources', {
+//            expand project.properties
+//        }
+//    }
+    repositories {
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+    dependencies {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation 'ch.qos.logback:logback-classic:1.2.3'
+        implementation 'com.alibaba:fastjson:1.2.47'
+
+        implementation 'cn.hutool:hutool-all:5.8.0.M4'
+        implementation 'com.google.guava:guava:31.1-jre'
+        implementation 'joda-time:joda-time:2.10.10'
+    }
+    compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ["-Xjsr305=strict","-Xopt-in=kotlin.RequiresOptIn"]
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ["-Xjsr305=strict"]
+            jvmTarget = "1.8"
+        }
+    }
+}
+subprojects{
+}
+buildscript {
+    ext {
+        kotlinVersion = '1.5.0'
+        springBootVersion = '2.1.1.RELEASE'
+        publishDir="D:/stock_history/pub/app"
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
+    repositories {
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+    }
+}
