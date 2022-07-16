@@ -90,6 +90,10 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
         for(fi in fields){
             builder.appendLine("//    entity.set${fi.upperCamelName}();")
         }
+        builder.appendLine("//    entity")
+        for(fi in fields){
+            builder.appendLine("//        .${fi.lowerCamelName}()")
+        }
         for(fi in fields){
 //            if(fi.name=="id"){
 //                continue
@@ -125,6 +129,13 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
             builder.appendLine("    public boolean ${fi.lowerCamelName}_is(${fi.dataType} value){")
             builder.appendLine("        return Objects.equals(this.${fi.lowerCamelName}, value);")
             builder.appendLine("    }")
+            builder.appendLine("    /**")
+            builder.appendLine("    * ${fi.comment}")
+            builder.appendLine("    */")
+            builder.appendLine("    public ${className} ${fi.lowerCamelName}(${fi.dataType} value){")
+            builder.appendLine("        this.${fi.lowerCamelName}=value;")
+            builder.appendLine("        return this;")
+            builder.appendLine("    }")
             if(null != fi.enumInfo){
                 for(itm in fi.enumInfo.enums){
                     builder.appendLine("    /**")
@@ -137,6 +148,19 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
                         builder.appendLine("        this.${fi.lowerCamelName}=${itm.value};")
                     }
                     builder.appendLine("    }")
+
+                    builder.appendLine("    /**")
+                    builder.appendLine("    * ${fi.comment} ${itm.comment}")
+                    builder.appendLine("    */")
+                    builder.appendLine("    public ${className} ${fi.lowerCamelName}_${itm.name}(){")
+                    if(fi.dataType=="String"){
+                        builder.appendLine("        this.${fi.lowerCamelName}=\"${itm.value.toString().replace("\"", "\\\"")}\";")
+                    }else {
+                        builder.appendLine("        this.${fi.lowerCamelName}=${itm.value};")
+                    }
+                    builder.appendLine("        return this;")
+                    builder.appendLine("    }")
+
                     builder.appendLine("    /**")
                     builder.appendLine("    * ${fi.comment} ${itm.comment}")
                     builder.appendLine("    */")
@@ -246,6 +270,7 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
         builder.appendLine(deleteSqlBuilder)
 //        builder.appendLine("    private String table=\"${name}\";")
         builder.appendLine("    private boolean existsWhere=false;")
+        builder.appendLine("    private boolean existsOrderBy=false;")
         builder.appendLine("    private StringBuilder builder=new StringBuilder();")
 //        builder.appendLine("    private StringBuilder countBuilder=new StringBuilder();")
         builder.appendLine("    private List<Object> parameters =new ArrayList<>();")
@@ -952,6 +977,37 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
                 builder.appendLine("    }")
             }
             builder.appendLine("")
+
+            builder.appendLine("    /**")
+            builder.appendLine("    * ${fi.comment}")
+            builder.appendLine("    */")
+            builder.appendLine("    public ${sqlClassName} orderBy_${fi.lowerCamelName}_asc(){")
+            builder.appendLine("        String pre=\"\";")
+            builder.appendLine("        if(existsOrderBy){")
+            builder.appendLine("            pre=\",\";")
+            builder.appendLine("        }else{")
+            builder.appendLine("            pre=\" order by\";")
+            builder.appendLine("            existsOrderBy=true;")
+            builder.appendLine("        }")
+            builder.appendLine("        builder.append(pre+\" ${fi.name} asc\");")
+            builder.appendLine("        return this;")
+            builder.appendLine("    }")
+
+            builder.appendLine("    /**")
+            builder.appendLine("    * ${fi.comment}")
+            builder.appendLine("    */")
+            builder.appendLine("    public ${sqlClassName} orderBy_${fi.lowerCamelName}_desc(){")
+            builder.appendLine("        String pre=\"\";")
+            builder.appendLine("        if(existsOrderBy){")
+            builder.appendLine("            pre=\",\";")
+            builder.appendLine("        }else{")
+            builder.appendLine("            pre=\" order by\";")
+            builder.appendLine("            existsOrderBy=true;")
+            builder.appendLine("        }")
+            builder.appendLine("        builder.append(pre+\" ${fi.name} desc\");")
+            builder.appendLine("        return this;")
+            builder.appendLine("    }")
+
         }
         builder.appendLine("    @Override")
         builder.appendLine("    public String toSqlString() {")
