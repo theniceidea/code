@@ -136,6 +136,51 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
             builder.appendLine("        this.${fi.lowerCamelName}=value;")
             builder.appendLine("        return this;")
             builder.appendLine("    }")
+            builder.appendLine("    /**")
+            builder.appendLine("    * ${fi.comment} 如果为null返回默认值 value or default")
+            builder.appendLine("    */")
+
+            var dataType2 = fi.dataType
+            if(fi.dataType=="Integer"){
+                dataType2="int"
+            }else if(fi.dataType=="Long"){
+                dataType2="long"
+            }else if(fi.dataType=="Double"){
+                dataType2="double"
+            }
+
+            builder.appendLine("    public ${dataType2} ${fi.lowerCamelName}_vd(){")
+            builder.appendLine("        if(null==this.${fi.lowerCamelName}){")
+            if(fi.dataType=="String") {
+                builder.appendLine("            return \"\";")
+            }else if(fi.dataType=="Integer"){
+                builder.appendLine("            return 0;")
+            }else if(fi.dataType=="Long"){
+                builder.appendLine("            return 0L;")
+            }else if(fi.dataType=="Double"){
+                builder.appendLine("            return 0D;")
+            }else if(fi.dataType=="BigDecimal"){
+                builder.appendLine("            return BigDecimal.ZERO;")
+            }else if(fi.dataType=="Timestamp"){
+                builder.appendLine("            throw new RuntimeException(\"不支持此类型的默认值, 请手动指定默认值\");")
+            }else{
+                throw RuntimeException("不支持的基本类型 : ${fi.dataType}")
+            }
+
+            builder.appendLine("        }")
+            builder.appendLine("        return this.${fi.lowerCamelName};")
+            builder.appendLine("    }")
+            builder.appendLine("    /**")
+            builder.appendLine("    * ${fi.comment} 如果为null返回默认值 value or default")
+            builder.appendLine("    */")
+            builder.appendLine("    public ${dataType2} ${fi.lowerCamelName}_vd(${dataType2} defaultValue){")
+            builder.appendLine("        if(null==this.${fi.lowerCamelName}){")
+            builder.appendLine("            return defaultValue;")
+            builder.appendLine("        }")
+            builder.appendLine("        return this.${fi.lowerCamelName};")
+            builder.appendLine("    }")
+
+
             if(null != fi.enumInfo){
                 for(itm in fi.enumInfo.enums){
                     builder.appendLine("    /**")
