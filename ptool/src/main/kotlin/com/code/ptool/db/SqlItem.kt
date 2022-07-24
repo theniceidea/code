@@ -61,7 +61,9 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         buffer.appendLine("* ${this.comment}")
         buffer.appendLine("*/")
         buffer.appendLine("public class ${className}{")
-        val sql = content.joinToString("\n") { it.line.substringBefore("#v ") }
+        val sql = content.joinToString("\n") {
+            if(it.line.startsWith("#java ")) "" else it.line.substringBefore("#v ")
+        }
         dbInfo.db.query(sql, RsHandler { rs ->
             val metaData = rs.metaData
             for(i in 1 .. metaData.columnCount){
@@ -143,42 +145,44 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         val params=HashSet<String>()
         var bol=false
         for(line in this.content) {
-            if (line.paramName.isBlank()) {
+            if (line.paramNames.isEmpty()) {
                 continue
             }
-            val paramName = line.paramName
-            if (params.contains(paramName)) {
-                continue
+//            val paramName = line.paramNames[0]
+            for(paramName in line.paramNames) {
+                if (params.contains(paramName)) {
+                    continue
+                }
+                params.add(paramName)
+                var typeName = ""
+                if (paramName.startsWith("int_")) {
+                    typeName = "java.lang.Integer"
+                } else if (paramName.startsWith("string_")) {
+                    typeName = "java.lang.String"
+                } else if (paramName.startsWith("timestamp_")) {
+                    typeName = "java.sql.Timestamp"
+                } else if (paramName.startsWith("decimal_")) {
+                    typeName = "java.math.BigDecimal"
+                } else if (paramName.startsWith("double_")) {
+                    typeName = "java.lang.Double"
+                } else if (paramName.startsWith("long_")) {
+                    typeName = "java.lang.Long"
+                } else if (paramName.startsWith("list_")) {
+                    typeName = "java.util.List<Object>"
+                } else if (paramName.startsWith("set_")) {
+                    typeName = "java.util.Set<Object>"
+                } else {
+                    throw throw RuntimeException("sql文件 ${this.mSqlInfo.name} 不支持此类型 ${paramName}")
+                }
+                val cname = paramName.substringAfter("_", "")
+                if (bol) {
+                    sbuf.append(", ")
+                } else {
+                    bol = true
+                }
+                sbuf.append("${typeName} ${cname}")
+                sbuf2.appendLine("        summer.${cname}=${cname};")
             }
-            params.add(paramName)
-            var typeName = ""
-            if (paramName.startsWith("int_")) {
-                typeName = "java.lang.Integer"
-            } else if (paramName.startsWith("string_")) {
-                typeName = "java.lang.String"
-            } else if (paramName.startsWith("timestamp_")) {
-                typeName = "java.sql.Timestamp"
-            } else if (paramName.startsWith("decimal_")) {
-                typeName = "java.math.BigDecimal"
-            } else if (paramName.startsWith("double_")) {
-                typeName = "java.lang.Double"
-            } else if (paramName.startsWith("long_")) {
-                typeName = "java.lang.Long"
-            } else if (paramName.startsWith("list_")) {
-                typeName = "java.util.List<Object>"
-            } else if (paramName.startsWith("set_")) {
-                typeName = "java.util.Set<Object>"
-            } else {
-                throw throw RuntimeException("sql文件 ${this.mSqlInfo.name} 不支持此类型 ${paramName}")
-            }
-            val cname = paramName.substringAfter("_", "")
-            if(bol){
-                sbuf.append(", ")
-            }else{
-                bol=true
-            }
-            sbuf.append("${typeName} ${cname}")
-            sbuf2.appendLine("        summer.${cname}=${cname};")
         }
 
 
@@ -272,67 +276,68 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         buffer.appendLine("    }")
         params.clear()
         for(line in this.content){
-            if(line.paramName.isBlank()){
+            if(line.paramNames.isEmpty()){
                 continue
             }
-            val paramName = line.paramName
-            if(params.contains(paramName)){
-                continue
-            }
-            params.add(paramName)
-            var typeName=""
-            if(paramName.startsWith("int_")){
-                typeName="java.lang.Integer"
-            }else if(paramName.startsWith("string_")){
-                typeName="java.lang.String"
-            }else if(paramName.startsWith("timestamp_")){
-                typeName="java.sql.Timestamp"
-            }else if(paramName.startsWith("decimal_")){
-                typeName="java.math.BigDecimal"
-            }else if(paramName.startsWith("double_")){
-                typeName="java.lang.Double"
-            }else if(paramName.startsWith("long_")){
-                typeName="java.lang.Long"
-            }else if(paramName.startsWith("list_")){
-                typeName="java.util.List<Object>"
-            }else if(paramName.startsWith("set_")){
-                typeName="java.util.Set<Object>"
-            }else{
-                throw throw RuntimeException("sql文件 ${this.mSqlInfo.name} 不支持此类型 ${paramName}")
-            }
-            val cname = paramName.substringAfter("_", "")
-            val cuname="${cname[0].uppercase()}${cname.substring(1)}"
-            val clname="${cname[0].lowercase()}${cname.substring(1)}"
+//            val paramName = line.paramNames[0]
+            for(paramName in line.paramNames) {
+                if (params.contains(paramName)) {
+                    continue
+                }
+                params.add(paramName)
+                var typeName = ""
+                if (paramName.startsWith("int_")) {
+                    typeName = "java.lang.Integer"
+                } else if (paramName.startsWith("string_")) {
+                    typeName = "java.lang.String"
+                } else if (paramName.startsWith("timestamp_")) {
+                    typeName = "java.sql.Timestamp"
+                } else if (paramName.startsWith("decimal_")) {
+                    typeName = "java.math.BigDecimal"
+                } else if (paramName.startsWith("double_")) {
+                    typeName = "java.lang.Double"
+                } else if (paramName.startsWith("long_")) {
+                    typeName = "java.lang.Long"
+                } else if (paramName.startsWith("list_")) {
+                    typeName = "java.util.List<Object>"
+                } else if (paramName.startsWith("set_")) {
+                    typeName = "java.util.Set<Object>"
+                } else {
+                    throw throw RuntimeException("sql文件 ${this.mSqlInfo.name} 不支持此类型 ${paramName}")
+                }
+                val cname = paramName.substringAfter("_", "")
+                val cuname = "${cname[0].uppercase()}${cname.substring(1)}"
+                val clname = "${cname[0].lowercase()}${cname.substring(1)}"
 
-            buffer.appendLine("    /**")
-            buffer.appendLine("    * ${line.comment}")
-            buffer.appendLine("    */")
-            buffer.appendLine("    private ${typeName} $cname;")
-            gsbuffer.appendLine("    /**")
-            gsbuffer.appendLine("    * ${line.comment}")
-            gsbuffer.appendLine("    */")
-            gsbuffer.appendLine("    public ${typeName} get${cuname}(){")
-            gsbuffer.appendLine("        return this.${cname};")
-            gsbuffer.appendLine("    }")
-            gsbuffer.appendLine("    /**")
-            gsbuffer.appendLine("    * ${line.comment}")
-            gsbuffer.appendLine("    */")
-            gsbuffer.appendLine("    public void set${cuname}(${typeName} value){")
-            gsbuffer.appendLine("        this.${cname}=value;")
-            gsbuffer.appendLine("    }")
-            gsbuffer.appendLine("    /**")
-            gsbuffer.appendLine("    * ${line.comment}")
-            gsbuffer.appendLine("    */")
-            gsbuffer.appendLine("    public ${className} ${clname}(${typeName} value){")
-            gsbuffer.appendLine("        this.${cname}=value;")
-            gsbuffer.appendLine("        return this;")
-            gsbuffer.appendLine("    }")
-            gsbuffer.appendLine("    /**")
-            gsbuffer.appendLine("    * ${line.comment}")
-            gsbuffer.appendLine("    */")
-            gsbuffer.appendLine("    public FieldValid<${className}, ${typeName}> ${clname}_fv(${typeName} value){")
-            gsbuffer.appendLine("        return new FieldValid<>(this, value, () -> ${clname}(value));")
-            gsbuffer.appendLine("    }")
+                buffer.appendLine("    /**")
+                buffer.appendLine("    * ${line.comment}")
+                buffer.appendLine("    */")
+                buffer.appendLine("    private ${typeName} $cname;")
+                gsbuffer.appendLine("    /**")
+                gsbuffer.appendLine("    * ${line.comment}")
+                gsbuffer.appendLine("    */")
+                gsbuffer.appendLine("    public ${typeName} get${cuname}(){")
+                gsbuffer.appendLine("        return this.${cname};")
+                gsbuffer.appendLine("    }")
+                gsbuffer.appendLine("    /**")
+                gsbuffer.appendLine("    * ${line.comment}")
+                gsbuffer.appendLine("    */")
+                gsbuffer.appendLine("    public void set${cuname}(${typeName} value){")
+                gsbuffer.appendLine("        this.${cname}=value;")
+                gsbuffer.appendLine("    }")
+                gsbuffer.appendLine("    /**")
+                gsbuffer.appendLine("    * ${line.comment}")
+                gsbuffer.appendLine("    */")
+                gsbuffer.appendLine("    public ${className} ${clname}(${typeName} value){")
+                gsbuffer.appendLine("        this.${cname}=value;")
+                gsbuffer.appendLine("        return this;")
+                gsbuffer.appendLine("    }")
+                gsbuffer.appendLine("    /**")
+                gsbuffer.appendLine("    * ${line.comment}")
+                gsbuffer.appendLine("    */")
+                gsbuffer.appendLine("    public FieldValid<${className}, ${typeName}> ${clname}_fv(${typeName} value){")
+                gsbuffer.appendLine("        return new FieldValid<>(this, value, () -> ${clname}(value));")
+                gsbuffer.appendLine("    }")
 
 //            gsbuffer.appendLine("    /**")
 //            gsbuffer.appendLine("    * ${line.comment}")
@@ -350,13 +355,14 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
 //            gsbuffer.appendLine("        return this;")
 //            gsbuffer.appendLine("    }")
 
-            gsbuffer.appendLine("    /**")
-            gsbuffer.appendLine("    * ${line.comment}")
-            gsbuffer.appendLine("    */")
-            gsbuffer.appendLine("    public ${className} ${clname}_valid(IValidator<${typeName}> validator, String msg){")
-            gsbuffer.appendLine("        validator.valid(this.${cname}, msg);")
-            gsbuffer.appendLine("        return this;")
-            gsbuffer.appendLine("    }")
+                gsbuffer.appendLine("    /**")
+                gsbuffer.appendLine("    * ${line.comment}")
+                gsbuffer.appendLine("    */")
+                gsbuffer.appendLine("    public ${className} ${clname}_valid(IValidator<${typeName}> validator, String msg){")
+                gsbuffer.appendLine("        validator.valid(this.${cname}, msg);")
+                gsbuffer.appendLine("        return this;")
+                gsbuffer.appendLine("    }")
+            }
         }
         buffer.append(gsbuffer)
         buffer.appendLine("}")
@@ -367,8 +373,11 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         val buffer=StringBuilder()
         val gsbuffer=StringBuilder()
         buffer.appendLine("package ${mSqlInfo.project.msqlPkg}.${mSqlInfo.name};")
-//        buffer.appendLine(mSqlInfo.imps)
+        mSqlInfo.imps.forEach {
+            buffer.appendLine(it)
+        }
         buffer.appendLine("import ${mSqlInfo.project.msqlSummerPkg}.${mSqlInfo.name}.${this.name};")
+        buffer.appendLine("import com.${mSqlInfo.project.comp}.model0.bizdemo.${mSqlInfo.name}.*;")
         buffer.appendLine("import org.springframework.stereotype.Service;")
         buffer.appendLine("import org.summerframework.model.SummerService;")
         buffer.appendLine("import com.fmk.framework.validation.Precondition;")
@@ -378,7 +387,6 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         buffer.appendLine("import com.fmk.framework.daosimple.BQuerySelect;")
         buffer.appendLine("import org.summerframework.model.SummerServiceBean;")
         buffer.appendLine("import org.apache.commons.lang3.StringUtils;")
-        buffer.appendLine("import com.${mSqlInfo.project.comp}.model0.bizdemo.${mSqlInfo.name}.*;")
         buffer.appendLine("import java.util.List;")
         if(this.returnType=="one") {
         }else if(this.returnType=="list"){
@@ -420,31 +428,45 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         buffer.appendLine("        boolean bol=true;")
         var ci=0
         for(itm in this.content) {
+            if(itm.line.startsWith("#java ")){
+                buffer.append("        ")
+//                buffer.append(itm.line.substring(6))
+                var line = itm.line.substring(6)
+                for(paramName in itm.paramNames){
+                    val cname = paramName.substringAfter("_", "")
+                    val cuname="${cname[0].uppercase()}${cname.substring(1)}"
+                    line=line.replace(":${paramName}", "summer.get${cuname}()")
+                }
+                buffer.append(line)
+                buffer.append("\n")
+                continue
+            }
             val sline = itm.line.substringBefore("#v ").trimEnd().trimEnd(';')
             if(ci==0){
                 buffer.appendLine("        bqs.setSelect(\"${sline}\");")
                 ci += 1
                 continue
             }
-            if(itm.paramName.isBlank()) {
+            if(itm.paramNames.isEmpty()) {
                 buffer.appendLine("        builder.append(\" ${sline}\");")
             }else{
+                var paramName = itm.paramNames[0]
                 buffer.appendLine("")
                 buffer.appendLine("        bol=true;")
-                val cname = itm.paramName.substringAfter("_", "")
+                val cname = paramName.substringAfter("_", "")
                 val cuname="${cname[0].uppercase()}${cname.substring(1)}"
                 if(itm.errMsg.isBlank()) {
                     for (chk in itm.checkFuns) {
                         buffer.appendLine("        bol=bol && SqlValidator.${chk}(summer.get${cuname}());")
                     }
                     buffer.appendLine("        if(bol){")
-                    if(itm.paramName.startsWith("list_") || itm.paramName.startsWith("set_")){
+                    if(paramName.startsWith("list_") || paramName.startsWith("set_")){
                         buffer.appendLine("            String txt = StringUtils.repeat(\"?\", \",\", summer.get${cuname}().size());")
-                        buffer.appendLine("            builder.append(\" ${sline.replace("\"", "\\\"")}\".replace(\":${itm.paramName}\", txt));")
+                        buffer.appendLine("            builder.append(\" ${sline.replace("\"", "\\\"")}\".replace(\":${paramName}\", txt));")
                         buffer.appendLine("            values.addAll(summer.get${cuname}());")
                         buffer.appendLine("            ")
                     }else{
-                        buffer.appendLine("            builder.append(\" ${sline.replace("\"", "\\\"").replace(":${itm.paramName}", "?")}\");")
+                        buffer.appendLine("            builder.append(\" ${sline.replace("\"", "\\\"").replace(":${paramName}", "?")}\");")
                         buffer.appendLine("            values.add(summer.get${cuname}());")
                     }
                     buffer.appendLine("        }")
@@ -453,13 +475,13 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
                         buffer.appendLine("        bol=bol && SqlValidator.${chk}(summer.get${cuname}());")
                     }
                     buffer.appendLine("        Precondition.checkState(bol, \"${itm.errMsg.substring(4).replace("\"", "\\\"")}\");")
-                    if(itm.paramName.startsWith("list_") || itm.paramName.startsWith("set_")){
+                    if(paramName.startsWith("list_") || paramName.startsWith("set_")){
                         buffer.appendLine("        String txt = StringUtils.repeat(\"?\", \",\", summer.get${cuname}().size());")
-                        buffer.appendLine("        builder.append(\" ${sline.replace("\"", "\\\"")}\".replace(\":${itm.paramName}\", txt));")
+                        buffer.appendLine("        builder.append(\" ${sline.replace("\"", "\\\"")}\".replace(\":${paramName}\", txt));")
                         buffer.appendLine("        values.addAll(summer.get${cuname}());")
                         buffer.appendLine("        ")
                     }else{
-                        buffer.appendLine("        builder.append(\" ${sline.replace("\"", "\\\"").replace(":${itm.paramName}", "?")}\");")
+                        buffer.appendLine("        builder.append(\" ${sline.replace("\"", "\\\"").replace(":${paramName}", "?")}\");")
                         buffer.appendLine("        values.add(summer.get${cuname}());")
                     }
                 }
@@ -490,10 +512,10 @@ class SqlItem(val name:String, val returnType:String, val publish:Boolean, val c
         val params=HashSet<String>()
         for(i in 0 until content.size){
             val codeLine = content[i]
-            if(codeLine.paramName.isBlank()){
+            if(codeLine.paramNames.isEmpty()){
                 continue
             }
-            params.add(codeLine.paramName)
+            params.addAll(codeLine.paramNames)
         }
         return params
     }

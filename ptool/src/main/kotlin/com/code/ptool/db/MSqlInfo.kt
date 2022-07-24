@@ -48,6 +48,10 @@ class MSqlInfo(val name:String, val content:String, val project: Project) {
                 itmComment=tokenStr.nextAll()
                 continue
             }
+            if(line.startsWith("#java ")) {
+                itmContent.add(SqlLine(lineNumber, line, null))
+                continue
+            }
             if(line.startsWith("#")){
                 continue
             }
