@@ -10,9 +10,9 @@ build{
             from("./src/main/resources/application.json")
             into "./build/classes"
         }
-        copy {
-            from("./src/main/resources/db.setting")
-            into "./build/classes"
-        }
+//        copy {
+//            from("./src/main/resources/db.setting")
+//            into "./build/classes"
+//        }
     }
 }

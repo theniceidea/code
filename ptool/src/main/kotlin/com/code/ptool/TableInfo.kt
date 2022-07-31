@@ -8,6 +8,7 @@ import kotlin.io.path.Path
 
 class TableInfo(val targetName:String, val prefix:String, val name:String, val idTag:String, val jsonText:String, val project: Project) {
     var className=""
+    var listInterfaceName=""
     val entityImports=ArrayList<String>()
     val sqlImports=ArrayList<String>()
     val fields=ArrayList<FieldInfo>()
@@ -26,6 +27,7 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
         }else{
             className= CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name)
         }
+        listInterfaceName="I${className}List"
         initFields()
     }
     fun initFields(){
@@ -1535,5 +1537,58 @@ class TableInfo(val targetName:String, val prefix:String, val name:String, val i
         builder.appendLine("}")
         val toFile = Path(this.queryDir, "${sqlClassName}.java").toFile()
         FileUtil.writeUtf8String(builder.toString(), toFile)
+    }
+
+    fun buildListInterface(){
+        val builder = StringBuilder()
+        builder.appendLine("package ${this.entityPkg};")
+        builder.appendLine()
+        builder.appendLine("import java.util.List;")
+        builder.appendLine("import java.math.BigDecimal;")
+        builder.appendLine("import java.sql.Timestamp;")
+        builder.appendLine("/**")
+        builder.appendLine("* ${this.comment}")
+        builder.appendLine("*/")
+
+        builder.appendLine("public interface ${listInterfaceName} extends List<${className}>{")
+
+
+        for(fi in fields){
+            val tab="    "
+            builder.appendLine("${tab}/**")
+            builder.appendLine("${tab}* ${fi.comment}")
+            builder.appendLine("${tab}*/")
+            builder.appendLine("${tab}List<${fi.dataType}> ${fi.lowerCamelName}List();")
+            builder.appendLine("${tab}/**")
+            builder.appendLine("${tab}* ${fi.comment}")
+            builder.appendLine("${tab}*/")
+            builder.appendLine("${tab}List<${fi.dataType}> ${fi.lowerCamelName}List_skipNull();")
+            if(StrUtil.equalsAny(fi.dataType, "String")) {
+                builder.appendLine("${tab}/**")
+                builder.appendLine("${tab}* ${fi.comment}")
+                builder.appendLine("${tab}*/")
+                builder.appendLine("${tab}List<${fi.dataType}> ${fi.lowerCamelName}List_skipBlank();")
+            }
+            if(fi.ref != ""){
+                val refClassName= CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, fi.ref)
+                val refListInterfaceName="I${refClassName}List"
+                val refLowerColumnName= CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, fi.refColumn)
+                val refUpperColumnName= CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, fi.refColumn)
+
+                builder.appendLine("${tab}/**")
+                builder.appendLine("${tab}* ${fi.comment}")
+                builder.appendLine("${tab}*/")
+                builder.appendLine("${tab}${refListInterfaceName} ${fi.lowerCamelName}EntityList();")
+
+            }
+
+        }
+
+        builder.appendLine("}")
+        val toFile = Path(this.entityDir, "${listInterfaceName}.java").toFile()
+        FileUtil.writeUtf8String(builder.toString(), toFile)
+    }
+    fun buildList(){
+
     }
 }

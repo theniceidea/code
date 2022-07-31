@@ -33,22 +33,22 @@ class Ptool(val config: JSONObject) {
 
             val metaDir = Path(baseDir, name, "meta").toFile().absolutePath
             val entityPkg = "com.${comp}.entities0.${name}"
-            val entityDir = Path(baseDir, name, "${name}-model\\src\\main\\java\\com\\${comp}\\entities0\\${name}").toFile().absolutePath
+            val entityDir = Path(baseDir, name, "${name}-model/src/main/java/com/${comp}/entities0/${name}").toFile().absolutePath
 
             val enumsPkg = "com.${comp}.enums0.${name}"
-            val enumsDir = Path(baseDir, name, "${name}-model\\src\\main\\java\\com\\${comp}\\enums0\\${name}").toFile().absolutePath
+            val enumsDir = Path(baseDir, name, "${name}-model/src/main/java/com/${comp}/enums0/${name}").toFile().absolutePath
 
             val modelPkg = "com.${comp}.model0.${name}"
-            val modelDir = Path(baseDir, name, "${name}-model\\src\\main\\java\\com\\${comp}\\model0\\${name}").toFile().absolutePath
+            val modelDir = Path(baseDir, name, "${name}-model/src/main/java/com/${comp}/model0/${name}").toFile().absolutePath
 
             val queryPkg = "com.${comp}.query0.${name}"
-            val queryDir = Path(baseDir, name, "${name}-boot\\src\\main\\java\\com\\${comp}\\query0\\${name}").toFile().absolutePath
+            val queryDir = Path(baseDir, name, "${name}-boot/src/main/java/com/${comp}/query0/${name}").toFile().absolutePath
 
             val msqlPkg = "com.${comp}.msql0.${name}"
-            val msqlDir = Path(baseDir, name, "${name}-boot\\src\\main\\java\\com\\${comp}\\msql0\\${name}").toFile().absolutePath
+            val msqlDir = Path(baseDir, name, "${name}-boot/src/main/java/com/${comp}/msql0/${name}").toFile().absolutePath
 
             val msqlSummerPkg = "com.${comp}.summer.v0.service.${name}"
-            val msqlSummerDir = Path(baseDir, name, "${name}-model\\src\\main\\java\\com\\${comp}\\summer\\v0\\service\\${name}").toFile().absolutePath
+            val msqlSummerDir = Path(baseDir, name, "${name}-model/src/main/java/com/${comp}/summer/v0/service/${name}").toFile().absolutePath
 
             Preconditions.checkState(proj.containsKey("tables"), "需要有projects.tables")
             Preconditions.checkState(proj["tables"] is JSONArray, "projects.tables 需要是array")

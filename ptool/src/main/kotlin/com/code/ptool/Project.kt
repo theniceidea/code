@@ -69,6 +69,7 @@ class Project(
         FileUtil.loopFiles(msqlSummerDir){ file-> FileUtil.del(file) }
 
         this.buildEntity()
+        this.buildListInterface()
         this.buildSql()
         this.buildEnumFiles()
         this.buildMsql()
@@ -76,6 +77,11 @@ class Project(
     fun buildEntity(){
         for(tbl in tables.values){
             tbl.buildEntity()
+        }
+    }
+    fun buildListInterface(){
+        for(tbl in tables.values){
+            tbl.buildListInterface()
         }
     }
     fun buildSql(){
